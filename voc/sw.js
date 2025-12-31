@@ -1,12 +1,14 @@
-const CACHE_VERSION = "words-v7";
-const CACHE_NAME = `words-cache-${CACHE_VERSION}`;
+const CACHE_VERSION = "voc-v1";
+const CACHE_NAME = `voc-cache-${CACHE_VERSION}`;
 
 const ASSETS = [
   "./",
   "./index.html",
   "./edit.html",
   "./manifest.webmanifest",
-  "./sw.js"
+  "./sw.js",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
