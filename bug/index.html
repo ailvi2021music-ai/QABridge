@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Bug Report Trainer</title>
+  <meta name="theme-color" content="#071221" />
+
+  <style>
+    :root{
+      --bg0:#050914;
+      --bg1:#071221;
+      --text:#EAF2FF;
+      --muted2:rgba(234,242,255,.55);
+      --accent:#59C3FF;
+      --good:#3CE07A;
+      --warn:#FFD166;
+      --bad:#FF5C7A;
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --shadow2: 0 10px 30px rgba(0,0,0,.35);
+      --r:18px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background: linear-gradient(180deg, var(--bg0), var(--bg1));
+      -webkit-font-smoothing:antialiased;
+      -webkit-text-size-adjust:100%;
+      overflow-x:hidden;
+    }
+
+    /* фон */
+    body::before{
+      content:"";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(89,195,255,.20), transparent 60%),
+        radial-gradient(900px 700px at 80% 30%, rgba(75,227,209,.14), transparent 55%),
+        radial-gradient(900px 700px at 60% 90%, rgba(255,92,122,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+    }
+
+    /* ==== FIX caret bug globally: hide caret everywhere, enable only in inputs ==== */
+    *{ caret-color: transparent; }
+    textarea, input, select{ caret-color: var(--text); }
+
+    /* Layout: no big card frame; content centered */
+    .wrap{
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px 14px;
+      min-height: 100svh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* Container without рамки */
+    .card{
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    .cardHead{
+      display:none;
+    }
+
+    .cardBody{
+      padding: 0;
+    }
+
+    .hidden{ display:none !important; }
+
+    /* Input area: prevent text selection/caret outside fields */
+    #panelInput{ user-select: none; }
+    #panelInput textarea, #panelInput input, #panelInput select{ user-select: text; }
+
+    /* FLAT QUESTIONS */
+    .q{
+      padding: 6px 0;
+      margin-bottom: 14px;
+      background: none;
+      border: none;
+    }
+
+    .q label{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      color: rgba(234,242,255,.90);
+      font-size: 13px;
+      margin-bottom: 8px;
+      user-select:none;
+      cursor: default;
+    }
+
+    .n{
+      width: 22px; height: 22px;
+      border-radius: 8px;
+      display:grid; place-items:center;
+      background: rgba(89,195,255,.14);
+      border: 1px solid rgba(89,195,255,.22);
+      color: rgba(234,242,255,.92);
+      font-size: 12px;
+      flex: 0 0 auto;
+      user-select:none;
+      cursor: default;
+    }
+
+    textarea, input, select{
+      width:100%;
+      background: rgba(234,242,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 11px;
+      outline: none;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    textarea{ min-height: 54px; resize: vertical; }
+
+    textarea:focus, input:focus, select:focus{
+      border-color: rgba(89,195,255,.38);
+      box-shadow: 0 0 0 4px rgba(89,195,255,.10);
+    }
+
+    select{
+      background-color: rgba(234,242,255,.06);
+      color: rgba(234,242,255,.92);
+    }
+    select option{
+      background-color: #0b162e;
+      color: #eaf2ff;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width:520px){ .row{ grid-template-columns: 1fr; } }
+
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+      align-items:center;
+      justify-content:flex-start;
+    }
+    .btnRow.split{ justify-content:space-between; }
+
+    .btnGroup{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .btnGroup.right{ justify-content:flex-end; }
+
+    /* ==== Smaller buttons (about 1.5x smaller) ==== */
+    .btn{
+      border:1px solid rgba(89,195,255,.25);
+      color: rgba(234,242,255,.92);
+      background: rgba(89,195,255,.10);
+      padding: 8px 10px;          /* was 11px 14px */
+      border-radius: 12px;        /* was 14px */
+      cursor:pointer;
+      font-size:13px;             /* was 14px */
+      letter-spacing:.15px;
+      transition: transform .08s ease, filter .12s ease, background .12s ease, border-color .12s ease;
+      user-select:none;
+    }
+    .btn:hover{ filter: brightness(1.06); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(89,195,255,.30), rgba(89,195,255,.14));
+      border-color: rgba(89,195,255,.40);
+      box-shadow: 0 14px 40px rgba(89,195,255,.10);
+    }
+    .btn.ghost{
+      background: transparent;
+      border-color: rgba(234,242,255,.12);
+      color: rgba(234,242,255,.75);
+    }
+    .btn.danger{
+      background: rgba(255,92,122,.10);
+      border-color: rgba(255,92,122,.25);
+      color: rgba(234,242,255,.88);
+    }
+    .btn[disabled]{ opacity:.45; cursor:not-allowed; filter:none; transform:none; }
+
+    .btn.back{
+      padding: 7px 10px;          /* smaller */
+      border-radius: 999px;
+      font-size: 12.5px;
+      background: rgba(234,242,255,.06);
+      border-color: rgba(234,242,255,.12);
+      color: rgba(234,242,255,.86);
+    }
+
+    /* ICON-ONLY controls: no halo */
+    .iconBtn{
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 6px 8px;
+      border-radius: 10px;
+      color: rgba(234,242,255,.92);
+      cursor:pointer;
+      font-size: 16px;
+      line-height: 1;
+      user-select:none;
+      transition: transform .08s ease, opacity .12s ease;
+    }
+    .iconBtn:hover{ opacity: .92; }
+    .iconBtn:active{ transform: translateY(1px); }
+    .iconBtn:focus{ outline: none; }
+    .iconBtn:focus-visible{ outline: 2px solid rgba(89,195,255,.35); outline-offset: 2px; }
+
+    .seg{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-start;
+      margin-bottom:12px;
+    }
+    .segBtn{
+      border:1px solid rgba(234,242,255,.12);
+      background: rgba(234,242,255,.06);
+      color: rgba(234,242,255,.80);
+      padding: 7px 9px;           /* smaller */
+      border-radius: 999px;
+      cursor:pointer;
+      font-size: 12.5px;          /* smaller */
+      user-select:none;
+      transition: filter .12s ease, transform .08s ease, background .12s ease, border-color .12s ease;
+      white-space: nowrap;
+    }
+    .segBtn:hover{ filter: brightness(1.06); }
+    .segBtn:active{ transform: translateY(1px); }
+    .segBtn.active{
+      border-color: rgba(89,195,255,.35);
+      background: rgba(89,195,255,.12);
+      color: rgba(234,242,255,.92);
+    }
+
+    /* output blocks keep a gentle panel so text readable */
+    .outBlock{
+      padding: 12px 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(5,9,20,.18);
+      margin-bottom: 10px;
+    }
+
+    .outTitle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: rgba(234,242,255,.92);
+      letter-spacing:.2px;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .dot{
+      width: 10px; height: 10px; border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(89,195,255,.12);
+      flex: 0 0 auto;
+    }
+    .dot.good{ background: var(--good); box-shadow: 0 0 0 4px rgba(60,224,122,.10); }
+    .dot.warn{ background: var(--warn); box-shadow: 0 0 0 4px rgba(255,209,102,.10); }
+    .dot.bad{ background: var(--bad); box-shadow: 0 0 0 4px rgba(255,92,122,.10); }
+
+    pre{
+      margin:0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(234,242,255,.92);
+    }
+
+    .small{
+      color: var(--muted2);
+      font-size: 12px;
+      line-height: 1.35;
+      margin-top: 8px;
+      user-select:none;
+      cursor: default;
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(10,20,43,.92);
+      border: 1px solid rgba(89,195,255,.20);
+      color: rgba(234,242,255,.92);
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: var(--shadow2);
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 99;
+      max-width: min(520px, calc(100vw - 24px));
+      text-align:center;
+      font-size: 13px;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-2px);
+    }
+
+    /* Wizard */
+    .wizardShell{ display:flex; flex-direction:column; gap:8px; }
+
+    /* ==== Wizard spacing fix: make gap like in form ==== */
+    #wizardMode .q{ margin-bottom: 8px; }      /* was 14px via .q */
+    #wizardMode .btnRow{ margin-top: 6px; }    /* tighter than default */
+
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <section class="card" id="mainCard">
+      <div class="cardHead hidden" id="cardHead">
+        <button class="btn back" id="backBtn" type="button" title="Назад" aria-label="Назад">← Назад</button>
+      </div>
+
+      <div class="cardBody">
+
+        <!-- INPUT PANEL -->
+        <div id="panelInput">
+
+          <!-- FORM MODE -->
+          <div id="formMode">
+            <div class="q" id="q1Block">
+              <label><span class="n" id="n1">1</span> <span id="l1">Шаги / действия</span></label>
+              <textarea id="q1"></textarea>
+            </div>
+
+            <div class="q" id="q2Block">
+              <label><span class="n" id="n2">2</span> <span id="l2">Что не так сейчас?</span></label>
+              <textarea id="q2"></textarea>
+            </div>
+
+            <div class="q" id="q3Block">
+              <label><span class="n" id="n3">3</span> <span id="l3">Как должно быть?</span></label>
+              <textarea id="q3"></textarea>
+            </div>
+
+            <div class="row">
+              <div class="q" style="margin:0;" id="q4Block">
+                <label><span class="n" id="n4">4</span> <span id="l4">Где это произошло?</span></label>
+                <input id="q4" />
+              </div>
+
+              <div class="q" style="margin:0;" id="q5Block">
+                <label><span class="n" id="n5">5</span> <span id="l5">Насколько это критично?</span></label>
+                <select id="q5">
+                  <option value="Low">Низко</option>
+                  <option value="Medium" selected>Средне</option>
+                  <option value="High">Высоко</option>
+                  <option value="Critical">Критично</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="q" style="margin:0;" id="envBlock">
+                <label><span class="n" id="n6">6</span> <span id="l6">Устройство / версия</span></label>
+                <input id="env" />
+              </div>
+
+              <div class="q" style="margin:0;" id="typeBlock">
+                <label><span class="n" id="n7">7</span> <span id="l7">Тип бага</span></label>
+                <select id="type">
+                  <option value="functional" selected>Функциональный</option>
+                  <option value="ui">UI/Дизайн</option>
+                  <option value="typo">Орфография/Текст</option>
+                  <option value="crash">Краш/Зависание</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="btnRow split">
+              <div class="btnGroup">
+                <button class="btn primary" id="genForm" type="button" title="Сгенерировать отчёт" aria-label="Сгенерировать отчёт">Сгенерировать</button>
+                <button class="btn" id="newReport" type="button" title="Очистить форму" aria-label="Очистить форму">Новый отчёт</button>
+              </div>
+
+              <div class="btnGroup right">
+                <button class="iconBtn" id="reportModeBtn" type="button"
+                  title="Режим репорта: увидено / действовал(а)" aria-label="Режим репорта: увидено / действовал(а)">👁️</button>
+
+                <button class="iconBtn" id="toggleInputModeBtn" type="button"
+                  title="Режим ввода: форма / по шагам" aria-label="Режим ввода: форма / по шагам">⇄</button>
+
+                <button class="iconBtn" id="demo" type="button"
+                  title="Демо: заполнить / очистить" aria-label="Демо: заполнить / очистить">?</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- WIZARD MODE -->
+          <div id="wizardMode" class="hidden">
+            <div class="wizardShell">
+              <div class="q" id="wizBox">
+                <label id="wizLabel"><span class="n" id="wizN">1</span> —</label>
+                <div id="wizField"></div>
+              </div>
+
+              <div class="btnRow split">
+                <div class="btnGroup">
+                  <button class="btn ghost" id="wizBack" type="button" title="Назад" aria-label="Назад">Назад</button>
+                  <button class="btn primary" id="wizNext" type="button" title="Далее" aria-label="Далее">Далее</button>
+                  <button class="btn primary hidden" id="wizGen" type="button" title="Сгенерировать отчёт" aria-label="Сгенерировать отчёт">Сгенерировать</button>
+                  <button class="btn" id="newReport2" type="button" title="Очистить" aria-label="Очистить">Новый отчёт</button>
+                </div>
+
+                <div class="btnGroup right">
+                  <button class="iconBtn" id="reportModeBtn2" type="button"
+                    title="Режим репорта: увидено / действовал(а)" aria-label="Режим репорта: увидено / действовал(а)">👁️</button>
+
+                  <button class="iconBtn" id="toggleInputModeBtn2" type="button"
+                    title="Режим ввода: форма / по шагам" aria-label="Режим ввода: форма / по шагам">⇄</button>
+
+                  <button class="iconBtn" id="demo2" type="button"
+                    title="Демо: заполнить / очистить" aria-label="Демо: заполнить / очистить">?</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RESULT PANEL -->
+        <div id="panelResult" class="hidden">
+          <div class="seg">
+            <button class="segBtn active" id="showEN" type="button" title="Показать EN" aria-label="Показать EN">EN</button>
+            <button class="segBtn" id="showRU" type="button" title="Показать RU" aria-label="Показать RU">RU</button>
+          </div>
+
+          <div class="outBlock" id="blockEN">
+            <div class="outTitle">
+              <span style="display:flex; align-items:center; gap:10px;"><span class="dot"></span> Bug Report (EN)</span>
+              <span class="small" id="sevPill">—</span>
+            </div>
+            <pre id="outEN">—</pre>
+          </div>
+
+          <div class="outBlock hidden" id="blockRU">
+            <div class="outTitle">
+              <span style="display:flex; align-items:center; gap:10px;"><span class="dot good"></span> Перевод (RU)</span>
+              <span class="small" id="envPill">—</span>
+            </div>
+            <pre id="outRU">—</pre>
+          </div>
+
+          <div class="outBlock" id="blockAfter">
+            <div class="outTitle">
+              <span style="display:flex; align-items:center; gap:10px;"><span class="dot warn"></span> Словарь</span>
+            </div>
+            <div class="small" id="afterText">—</div>
+
+            <div class="btnRow">
+              <button class="btn primary" id="goVocab" type="button" title="Открыть словарь" aria-label="Открыть словарь">Перейти в словарь</button>
+              <button class="btn" id="newReport3" type="button" title="Очистить" aria-label="Очистить">Новый отчёт</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VOCAB PANEL -->
+        <div id="panelVocab" class="hidden">
+          <div class="outBlock">
+            <div class="outTitle">
+              <span style="display:flex; align-items:center; gap:10px;"><span class="dot warn"></span> Новые (этот отчёт)</span>
+              <span class="small" id="vocNewCountPill">0</span>
+            </div>
+            <pre id="outVNew">—</pre>
+            <div class="btnRow" style="margin-top:10px;">
+              <button class="btn primary" id="copyNew" type="button" title="Скопировать новые" aria-label="Скопировать новые">Copy new</button>
+            </div>
+          </div>
+
+          <div class="outBlock">
+            <div class="outTitle">
+              <span style="display:flex; align-items:center; gap:10px;"><span class="dot"></span> Все слова</span>
+              <span class="small" id="vocAllCountPill">0</span>
+            </div>
+            <pre id="outVAll">—</pre>
+
+            <div class="btnRow" style="margin-top:10px;">
+              <button class="btn primary" id="copyAll" type="button" title="Скопировать все" aria-label="Скопировать все">Copy all</button>
+              <button class="btn" id="newReport4" type="button" title="Новый отчёт" aria-label="Новый отчёт">Новый отчёт</button>
+              <button class="btn danger" id="resetVocab3" type="button" title="Сбросить словарь" aria-label="Сбросить словарь">Сбросить словарь</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast">OK</div>
+
+<script>
+  // ========= CONFIG =========
+  const AI_ENDPOINT = "https://YOUR-WORKER.SUBDOMAIN.workers.dev"; // <-- поменяй
+  const APP_TOKEN = ""; // если используешь APP_TOKEN в Worker (можно оставить пустым)
+
+  // ========= utils =========
+  const $ = (id) => document.getElementById(id);
+  function toast(msg){
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"), 1400);
+  }
+  function cleanSpaces(s){ return (s||"").replace(/\s+/g," ").trim(); }
+
+  // ========= state =========
+  const state = {
+    tab: "input",           // input | result | vocab
+    inputMode: "form",      // form | wizard
+    wizardStep: 0,
+    reportMode: "observe",  // observe | interact
+    demoOn: false,
+    lastNewVocab: [],
+  };
+
+  // ========= panels =========
+  const panels = {
+    input: $("panelInput"),
+    result: $("panelResult"),
+    vocab: $("panelVocab")
+  };
+
+  function setTab(name){
+    state.tab = name;
+    Object.entries(panels).forEach(([k, el])=>{
+      el.classList.toggle("hidden", k !== name);
+    });
+    $("cardHead").classList.toggle("hidden", name === "input");
+    if(name === "vocab") renderVocabPanel();
+    if(name === "input") focusFirstInput();
+  }
+
+  function focusFirstInput(){
+    if(state.inputMode === "form"){
+      if(state.reportMode === "observe") $("q2").focus();
+      else $("q1").focus();
+    }else{
+      wizardFocus();
+    }
+  }
+
+  // ========= back =========
+  $("backBtn").addEventListener("click", ()=>{
+    if(state.tab === "vocab") setTab("result");
+    else setTab("input");
+  });
+
+  // ========= input mode toggle (one button) =========
+  function setInputMode(mode){
+    state.inputMode = mode;
+    const isForm = mode === "form";
+    $("formMode").classList.toggle("hidden", !isForm);
+    $("wizardMode").classList.toggle("hidden", isForm);
+    if(!isForm){
+      state.wizardStep = Math.min(state.wizardStep, getWizardSteps().length - 1);
+      renderWizard();
+      wizardFocus();
+    }else{
+      focusFirstInput();
+    }
+  }
+  function toggleInputMode(){
+    setInputMode(state.inputMode === "form" ? "wizard" : "form");
+    toast(state.inputMode === "form" ? "Форма" : "По шагам");
+  }
+  $("toggleInputModeBtn").addEventListener("click", toggleInputMode);
+  $("toggleInputModeBtn2").addEventListener("click", toggleInputMode);
+
+  // ========= report mode toggle (👁️ / 🖥️) =========
+  function renderReportModeUI(){
+    const isInteract = state.reportMode === "interact";
+    const icon = isInteract ? "🖥️" : "👁️";
+    $("reportModeBtn").textContent = icon;
+    $("reportModeBtn2").textContent = icon;
+
+    const title = isInteract
+      ? "Режим репорта: действовал(а) — есть шаги"
+      : "Режим репорта: увидено — без действий";
+    $("reportModeBtn").title = title;
+    $("reportModeBtn2").title = title;
+    $("reportModeBtn").setAttribute("aria-label", title);
+    $("reportModeBtn2").setAttribute("aria-label", title);
+
+    applyQuestionLayout();
+    if(state.inputMode === "wizard"){
+      state.wizardStep = 0;
+      renderWizard();
+    }
+  }
+
+  function toggleReportMode(){
+    state.reportMode = (state.reportMode === "observe") ? "interact" : "observe";
+    renderReportModeUI();
+    focusFirstInput();
+  }
+
+  $("reportModeBtn").addEventListener("click", toggleReportMode);
+  $("reportModeBtn2").addEventListener("click", toggleReportMode);
+
+  // ========= question layout by mode =========
+  function applyQuestionLayout(){
+    const observe = state.reportMode === "observe";
+    $("q1Block").classList.toggle("hidden", observe);
+
+    const map = observe
+      ? {
+          n2:"1", l2:"Что не так сейчас?",
+          n3:"2", l3:"Как должно быть?",
+          n4:"3", l4:"Где это произошло?",
+          n5:"4", l5:"Насколько это критично?",
+          n6:"5", l6:"Устройство / версия",
+          n7:"6", l7:"Тип бага"
+        }
+      : {
+          n1:"1", l1:"Шаги / действия",
+          n2:"2", l2:"Что не так сейчас?",
+          n3:"3", l3:"Как должно быть?",
+          n4:"4", l4:"Где это произошло?",
+          n5:"5", l5:"Насколько это критично?",
+          n6:"6", l6:"Устройство / версия",
+          n7:"7", l7:"Тип бага"
+        };
+
+    for(const [id,val] of Object.entries(map)){
+      const el = $(id);
+      if(el) el.textContent = val;
+    }
+  }
+
+  // ========= local vocab storage =========
+  const LS_ALL = "bugTrainer_allVocab_ai_v1";
+  function loadAllVocab(){
+    try{
+      const raw = localStorage.getItem(LS_ALL);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch{ return []; }
+  }
+  function saveAllVocab(arr){
+    localStorage.setItem(LS_ALL, JSON.stringify(arr));
+  }
+  function dedupeLines(lines){
+    const seen = new Set();
+    const out = [];
+    for(const line of lines){
+      const key = String(line||"").trim().toLowerCase();
+      if(!key) continue;
+      if(seen.has(key)) continue;
+      seen.add(key);
+      out.push(line);
+    }
+    return out;
+  }
+
+  // ========= result view =========
+  function setResultView(which){
+    const en = (which === "en");
+    $("showEN").classList.toggle("active", en);
+    $("showRU").classList.toggle("active", !en);
+    $("blockEN").classList.toggle("hidden", !en);
+    $("blockRU").classList.toggle("hidden", en);
+  }
+  $("showEN").addEventListener("click", ()=>setResultView("en"));
+  $("showRU").addEventListener("click", ()=>setResultView("ru"));
+
+  // ========= collect inputs =========
+  function gatherInputs(){
+    return {
+      mode: state.reportMode,                 // observe | interact
+      type: $("type").value,
+      severity: $("q5").value,
+      location_ru: cleanSpaces($("q4").value),
+      env_text: cleanSpaces($("env").value),
+      q1: cleanSpaces($("q1").value),
+      q2: cleanSpaces($("q2").value),
+      q3: cleanSpaces($("q3").value),
+    };
+  }
+
+  function validateInputs(data){
+    if(!data.q2 || !data.q3){
+      toast("Заполни: что не так сейчас + как должно быть");
+      return false;
+    }
+    return true;
+  }
+
+  // ========= demo toggle =========
+  function demo(){
+    state.demoOn = !state.demoOn;
+
+    if(state.demoOn){
+      if(state.reportMode === "observe"){
+        $("q2").value = 'На главной странице текст кнопки "Sign in" перекрывается и съезжает.';
+        $("q3").value = 'Текст должен быть выровнен и не перекрываться.';
+      }else{
+        $("q1").value = 'Открыть экран и нажать кнопку "Sign in".';
+        $("q2").value = "Ничего не произошло, приложение зависло.";
+        $("q3").value = "Должно было появиться окно логина и пароля.";
+      }
+      $("q4").value = "на главном экране";
+      $("q5").value = "High";
+      $("env").value = "iPhone 13, iOS 18.2, App v1.2.0";
+      $("type").value = (state.reportMode === "observe") ? "ui" : "crash";
+      toast("Демо заполнено");
+    }else{
+      $("q1").value = "";
+      $("q2").value = "";
+      $("q3").value = "";
+      $("q4").value = "";
+      $("env").value = "";
+      $("q5").value = "Medium";
+      $("type").value = "functional";
+      toast("Демо очищено");
+    }
+
+    if(state.inputMode === "wizard"){
+      state.wizardStep = 0;
+      renderWizard();
+      wizardFocus();
+    }else{
+      focusFirstInput();
+    }
+  }
+  $("demo").addEventListener("click", demo);
+  $("demo2").addEventListener("click", demo);
+
+  // ========= AI call =========
+  function setLoading(isLoading){
+    $("genForm").disabled = isLoading;
+    $("newReport").disabled = isLoading;
+    if($("wizGen")) $("wizGen").disabled = isLoading;
+  }
+
+  async function generateAI(){
+    const data = gatherInputs();
+    if(!validateInputs(data)) return;
+
+    if(!AI_ENDPOINT || AI_ENDPOINT.includes("YOUR-WORKER")){
+      toast("Сначала вставь AI_ENDPOINT (URL Worker)");
+      return;
+    }
+
+    setLoading(true);
+    $("outEN").textContent = "Генерирую…";
+    $("outRU").textContent = "Генерирую…";
+    $("sevPill").textContent = `Severity: ${data.severity}`;
+    $("envPill").textContent = data.env_text ? `Env: ${data.env_text}` : "Env: —";
+
+    try{
+      const resp = await fetch(AI_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(APP_TOKEN ? {"Authorization": `Bearer ${APP_TOKEN}`} : {})
+        },
+        body: JSON.stringify(data)
+      });
+
+      const json = await resp.json().catch(()=> ({}));
+      if(!resp.ok){
+        const msg = json && (json.error || json.detail)
+          ? (json.error + (json.detail ? (": " + json.detail) : ""))
+          : "Ошибка AI";
+        $("outEN").textContent = "—";
+        $("outRU").textContent = "—";
+        toast(msg.slice(0,120));
+        setTab("result");
+        setResultView("en");
+        return;
+      }
+
+      const en = (json.en_report || "—").trim();
+      const ru = (json.ru_report || "—").trim();
+      const newVocab = Array.isArray(json.new_vocab) ? json.new_vocab : [];
+
+      $("outEN").textContent = en || "—";
+      $("outRU").textContent = ru || "—";
+
+      state.lastNewVocab = newVocab
+        .filter(x=>x && x.en && x.ru)
+        .slice(0,15);
+
+      const newLines = state.lastNewVocab.map(x => `${x.en} — ${x.ru}`);
+      const all = loadAllVocab();
+      const merged = dedupeLines(all.concat(newLines));
+      saveAllVocab(merged);
+
+      $("afterText").textContent = state.lastNewVocab.length
+        ? `Новых для словаря: ${state.lastNewVocab.length}.`
+        : `Новых для словаря нет.`;
+
+      setTab("result");
+      setResultView("en");
+      toast("Готово");
+    }catch(err){
+      $("outEN").textContent = "—";
+      $("outRU").textContent = "—";
+      toast("Ошибка сети / Worker");
+      setTab("result");
+      setResultView("en");
+    }finally{
+      setLoading(false);
+    }
+  }
+
+  $("genForm").addEventListener("click", generateAI);
+
+  // ========= vocab panel =========
+  function renderVocabPanel(){
+    const newLines = (state.lastNewVocab || []).map(x => `${x.en} — ${x.ru}`);
+    const allArr = loadAllVocab();
+
+    $("vocNewCountPill").textContent = String(newLines.length);
+    $("outVNew").textContent = newLines.length ? newLines.join("\n") : "—";
+    $("copyNew").disabled = !newLines.length;
+
+    $("vocAllCountPill").textContent = String(allArr.length);
+    $("outVAll").textContent = allArr.length ? allArr.join("\n") : "—";
+    $("copyAll").disabled = !allArr.length;
+  }
+
+  // ========= new report / reset =========
+  function newReport(){
+    $("q1").value = "";
+    $("q2").value = "";
+    $("q3").value = "";
+    $("q4").value = "";
+    $("env").value = "";
+    $("q5").value = "Medium";
+    $("type").value = "functional";
+
+    state.demoOn = false;
+    state.lastNewVocab = [];
+
+    if(state.inputMode === "wizard"){
+      state.wizardStep = 0;
+      renderWizard();
+    }
+
+    setTab("input");
+    focusFirstInput();
+    toast("Новый отчёт");
+  }
+
+  function resetVocab(){
+    localStorage.removeItem(LS_ALL);
+    state.lastNewVocab = [];
+    if(state.tab === "vocab") renderVocabPanel();
+    toast("Словарь сброшен");
+  }
+
+  async function copyText(text){
+    const t = (text || "").trim();
+    if(!t){ toast("Нечего копировать"); return; }
+    try{
+      await navigator.clipboard.writeText(t);
+      toast("Copied");
+    }catch{
+      const ta = document.createElement("textarea");
+      ta.value = t;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      toast("Copied");
+    }
+  }
+
+  $("goVocab").addEventListener("click", ()=>setTab("vocab"));
+
+  ["newReport","newReport2","newReport3","newReport4"].forEach(id=>{
+    $(id).addEventListener("click", newReport);
+  });
+  $("resetVocab3").addEventListener("click", resetVocab);
+
+  $("copyNew").addEventListener("click", ()=>{
+    const newLines = (state.lastNewVocab || []).map(x => `${x.en} — ${x.ru}`).join("\n");
+    copyText(newLines);
+  });
+  $("copyAll").addEventListener("click", ()=>{
+    const allText = loadAllVocab().join("\n");
+    copyText(allText);
+  });
+
+  // ========= wizard steps depend on reportMode =========
+  function getWizardSteps(){
+    if(state.reportMode === "observe"){
+      return [
+        { key:"q2", label:"Что не так сейчас?", type:"textarea" },
+        { key:"q3", label:"Как должно быть?", type:"textarea" },
+        { key:"q4", label:"Где это произошло?", type:"input" },
+        { key:"q5", label:"Насколько это критично?", type:"select",
+          options:[ ["Low","Низко"], ["Medium","Средне"], ["High","Высоко"], ["Critical","Критично"] ] },
+        { key:"env", label:"Устройство / версия", type:"input" },
+        { key:"type", label:"Тип бага", type:"select",
+          options:[ ["functional","Функциональный"], ["ui","UI/Дизайн"], ["typo","Орфография/Текст"], ["crash","Краш/Зависание"] ] }
+      ];
+    }
+    return [
+      { key:"q1", label:"Шаги / действия", type:"textarea" },
+      { key:"q2", label:"Что не так сейчас?", type:"textarea" },
+      { key:"q3", label:"Как должно быть?", type:"textarea" },
+      { key:"q4", label:"Где это произошло?", type:"input" },
+      { key:"q5", label:"Насколько это критично?", type:"select",
+        options:[ ["Low","Низко"], ["Medium","Средне"], ["High","Высоко"], ["Critical","Критично"] ] },
+      { key:"env", label:"Устройство / версия", type:"input" },
+      { key:"type", label:"Тип бага", type:"select",
+        options:[ ["functional","Функциональный"], ["ui","UI/Дизайн"], ["typo","Орфография/Текст"], ["crash","Краш/Зависание"] ] }
+    ];
+  }
+
+  function renderWizard(){
+    const steps = getWizardSteps();
+    const idx = Math.max(0, Math.min(state.wizardStep, steps.length - 1));
+    state.wizardStep = idx;
+    const step = steps[idx];
+
+    $("wizLabel").innerHTML = `<span class="n" id="wizN">${idx+1}</span> ${step.label}`;
+
+    const host = $("wizField");
+    host.innerHTML = "";
+
+    let el;
+    if(step.type === "textarea"){
+      el = document.createElement("textarea");
+      el.value = $(step.key).value;
+      el.addEventListener("input", ()=>{ $(step.key).value = el.value; });
+    }else if(step.type === "input"){
+      el = document.createElement("input");
+      el.value = $(step.key).value;
+      el.addEventListener("input", ()=>{ $(step.key).value = el.value; });
+    }else if(step.type === "select"){
+      el = document.createElement("select");
+      step.options.forEach(([val, txt])=>{
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = txt;
+        el.appendChild(opt);
+      });
+      el.value = $(step.key).value;
+      el.addEventListener("change", ()=>{ $(step.key).value = el.value; });
+    }
+
+    el.id = "wizActiveField";
+    host.appendChild(el);
+
+    $("wizBack").disabled = (idx === 0);
+    const last = (idx === steps.length - 1);
+    $("wizNext").classList.toggle("hidden", last);
+    $("wizGen").classList.toggle("hidden", !last);
+
+    el.addEventListener("keydown", (e)=>{
+      if(e.key !== "Enter") return;
+      if(step.type === "textarea" && e.shiftKey) return;
+      e.preventDefault();
+      if(last) generateAI();
+      else wizardNext();
+    });
+  }
+
+  function wizardFocus(){
+    const el = $("wizActiveField");
+    if(el) el.focus();
+  }
+
+  function wizardNext(){
+    const steps = getWizardSteps();
+    if(state.wizardStep < steps.length - 1){
+      state.wizardStep += 1;
+      renderWizard();
+      wizardFocus();
+    }
+  }
+  function wizardBack(){
+    if(state.wizardStep > 0){
+      state.wizardStep -= 1;
+      renderWizard();
+      wizardFocus();
+    }
+  }
+
+  $("wizNext").addEventListener("click", wizardNext);
+  $("wizBack").addEventListener("click", wizardBack);
+  $("wizGen").addEventListener("click", generateAI);
+
+  // ========= init =========
+  applyQuestionLayout();
+  renderReportModeUI();
+  setTab("input");
+  setInputMode("form");
+  $("sevPill").textContent = "—";
+  $("envPill").textContent = "Env: —";
+</script>
+</body>
+</html>
