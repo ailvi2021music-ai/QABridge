@@ -22,7 +22,6 @@
     }
 
     *{ box-sizing:border-box; }
-
     html,body{ height:100%; }
 
     body{
@@ -35,7 +34,6 @@
       overflow-x:hidden;
     }
 
-    /* фон */
     body::before{
       content:"";
       position: fixed;
@@ -48,11 +46,9 @@
         linear-gradient(180deg, var(--bg0), var(--bg1));
     }
 
-    /* ==== FIX caret bug globally: hide caret everywhere, enable only in inputs ==== */
     *{ caret-color: transparent; }
     textarea, input, select{ caret-color: var(--text); }
 
-    /* Layout: no big card frame; content centered */
     .wrap{
       max-width: 680px;
       margin: 0 auto;
@@ -63,7 +59,6 @@
       justify-content:center;
     }
 
-    /* Container without рамки */
     .card{
       width: 100%;
       background: transparent;
@@ -73,21 +68,13 @@
       overflow: visible;
     }
 
-    .cardHead{
-      display:none;
-    }
-
-    .cardBody{
-      padding: 0;
-    }
-
+    .cardHead{ display:none; }
+    .cardBody{ padding: 0; }
     .hidden{ display:none !important; }
 
-    /* Input area: prevent text selection/caret outside fields */
     #panelInput{ user-select: none; }
     #panelInput textarea, #panelInput input, #panelInput select{ user-select: text; }
 
-    /* FLAT QUESTIONS */
     .q{
       padding: 6px 0;
       margin-bottom: 14px;
@@ -173,15 +160,14 @@
     }
     .btnGroup.right{ justify-content:flex-end; }
 
-    /* ==== Smaller buttons (about 1.5x smaller) ==== */
     .btn{
       border:1px solid rgba(89,195,255,.25);
       color: rgba(234,242,255,.92);
       background: rgba(89,195,255,.10);
-      padding: 8px 10px;          /* was 11px 14px */
-      border-radius: 12px;        /* was 14px */
+      padding: 8px 10px;
+      border-radius: 12px;
       cursor:pointer;
-      font-size:13px;             /* was 14px */
+      font-size:13px;
       letter-spacing:.15px;
       transition: transform .08s ease, filter .12s ease, background .12s ease, border-color .12s ease;
       user-select:none;
@@ -207,7 +193,7 @@
     .btn[disabled]{ opacity:.45; cursor:not-allowed; filter:none; transform:none; }
 
     .btn.back{
-      padding: 7px 10px;          /* smaller */
+      padding: 7px 10px;
       border-radius: 999px;
       font-size: 12.5px;
       background: rgba(234,242,255,.06);
@@ -215,7 +201,6 @@
       color: rgba(234,242,255,.86);
     }
 
-    /* ICON-ONLY controls: no halo */
     .iconBtn{
       background: transparent !important;
       border: none !important;
@@ -246,10 +231,10 @@
       border:1px solid rgba(234,242,255,.12);
       background: rgba(234,242,255,.06);
       color: rgba(234,242,255,.80);
-      padding: 7px 9px;           /* smaller */
+      padding: 7px 9px;
       border-radius: 999px;
       cursor:pointer;
-      font-size: 12.5px;          /* smaller */
+      font-size: 12.5px;
       user-select:none;
       transition: filter .12s ease, transform .08s ease, background .12s ease, border-color .12s ease;
       white-space: nowrap;
@@ -262,7 +247,6 @@
       color: rgba(234,242,255,.92);
     }
 
-    /* output blocks keep a gentle panel so text readable */
     .outBlock{
       padding: 12px 12px 14px;
       border-radius: 14px;
@@ -336,13 +320,9 @@
       transform: translateX(-50%) translateY(-2px);
     }
 
-    /* Wizard */
     .wizardShell{ display:flex; flex-direction:column; gap:8px; }
-
-    /* ==== Wizard spacing fix: make gap like in form ==== */
-    #wizardMode .q{ margin-bottom: 8px; }      /* was 14px via .q */
-    #wizardMode .btnRow{ margin-top: 6px; }    /* tighter than default */
-
+    #wizardMode .q{ margin-bottom: 8px; }
+    #wizardMode .btnRow{ margin-top: 6px; }
   </style>
 </head>
 
@@ -355,10 +335,8 @@
 
       <div class="cardBody">
 
-        <!-- INPUT PANEL -->
         <div id="panelInput">
 
-          <!-- FORM MODE -->
           <div id="formMode">
             <div class="q" id="q1Block">
               <label><span class="n" id="n1">1</span> <span id="l1">Шаги / действия</span></label>
@@ -428,7 +406,6 @@
             </div>
           </div>
 
-          <!-- WIZARD MODE -->
           <div id="wizardMode" class="hidden">
             <div class="wizardShell">
               <div class="q" id="wizBox">
@@ -460,7 +437,6 @@
 
         </div>
 
-        <!-- RESULT PANEL -->
         <div id="panelResult" class="hidden">
           <div class="seg">
             <button class="segBtn active" id="showEN" type="button" title="Показать EN" aria-label="Показать EN">EN</button>
@@ -496,7 +472,6 @@
           </div>
         </div>
 
-        <!-- VOCAB PANEL -->
         <div id="panelVocab" class="hidden">
           <div class="outBlock">
             <div class="outTitle">
@@ -532,8 +507,10 @@
 
 <script>
   // ========= CONFIG =========
-  const AI_ENDPOINT = "https://YOUR-WORKER.SUBDOMAIN.workers.dev"; // <-- поменяй
-  const APP_TOKEN = ""; // если используешь APP_TOKEN в Worker (можно оставить пустым)
+  // 1) ВСТАВЬ СЮДА URL ТВОЕГО CLOUDFLARE WORKER (который вызывает OpenAI)
+  const AI_ENDPOINT = "https://YOUR-WORKER.SUBDOMAIN.workers.dev";
+  // 2) Если в Worker сделаешь проверку токена — сюда можно добавить APP_TOKEN
+  const APP_TOKEN = "";
 
   // ========= utils =========
   const $ = (id) => document.getElementById(id);
@@ -547,10 +524,10 @@
 
   // ========= state =========
   const state = {
-    tab: "input",           // input | result | vocab
-    inputMode: "form",      // form | wizard
+    tab: "input",
+    inputMode: "form",
     wizardStep: 0,
-    reportMode: "observe",  // observe | interact
+    reportMode: "observe",
     demoOn: false,
     lastNewVocab: [],
   };
@@ -581,13 +558,11 @@
     }
   }
 
-  // ========= back =========
   $("backBtn").addEventListener("click", ()=>{
     if(state.tab === "vocab") setTab("result");
     else setTab("input");
   });
 
-  // ========= input mode toggle (one button) =========
   function setInputMode(mode){
     state.inputMode = mode;
     const isForm = mode === "form";
@@ -608,7 +583,6 @@
   $("toggleInputModeBtn").addEventListener("click", toggleInputMode);
   $("toggleInputModeBtn2").addEventListener("click", toggleInputMode);
 
-  // ========= report mode toggle (👁️ / 🖥️) =========
   function renderReportModeUI(){
     const isInteract = state.reportMode === "interact";
     const icon = isInteract ? "🖥️" : "👁️";
@@ -639,7 +613,6 @@
   $("reportModeBtn").addEventListener("click", toggleReportMode);
   $("reportModeBtn2").addEventListener("click", toggleReportMode);
 
-  // ========= question layout by mode =========
   function applyQuestionLayout(){
     const observe = state.reportMode === "observe";
     $("q1Block").classList.toggle("hidden", observe);
@@ -669,7 +642,6 @@
     }
   }
 
-  // ========= local vocab storage =========
   const LS_ALL = "bugTrainer_allVocab_ai_v1";
   function loadAllVocab(){
     try{
@@ -694,7 +666,6 @@
     return out;
   }
 
-  // ========= result view =========
   function setResultView(which){
     const en = (which === "en");
     $("showEN").classList.toggle("active", en);
@@ -705,10 +676,9 @@
   $("showEN").addEventListener("click", ()=>setResultView("en"));
   $("showRU").addEventListener("click", ()=>setResultView("ru"));
 
-  // ========= collect inputs =========
   function gatherInputs(){
     return {
-      mode: state.reportMode,                 // observe | interact
+      mode: state.reportMode,
       type: $("type").value,
       severity: $("q5").value,
       location_ru: cleanSpaces($("q4").value),
@@ -727,7 +697,6 @@
     return true;
   }
 
-  // ========= demo toggle =========
   function demo(){
     state.demoOn = !state.demoOn;
 
@@ -767,7 +736,6 @@
   $("demo").addEventListener("click", demo);
   $("demo2").addEventListener("click", demo);
 
-  // ========= AI call =========
   function setLoading(isLoading){
     $("genForm").disabled = isLoading;
     $("newReport").disabled = isLoading;
@@ -848,7 +816,6 @@
 
   $("genForm").addEventListener("click", generateAI);
 
-  // ========= vocab panel =========
   function renderVocabPanel(){
     const newLines = (state.lastNewVocab || []).map(x => `${x.en} — ${x.ru}`);
     const allArr = loadAllVocab();
@@ -862,7 +829,6 @@
     $("copyAll").disabled = !allArr.length;
   }
 
-  // ========= new report / reset =========
   function newReport(){
     $("q1").value = "";
     $("q2").value = "";
@@ -925,7 +891,6 @@
     copyText(allText);
   });
 
-  // ========= wizard steps depend on reportMode =========
   function getWizardSteps(){
     if(state.reportMode === "observe"){
       return [
@@ -1026,7 +991,6 @@
   $("wizBack").addEventListener("click", wizardBack);
   $("wizGen").addEventListener("click", generateAI);
 
-  // ========= init =========
   applyQuestionLayout();
   renderReportModeUI();
   setTab("input");
