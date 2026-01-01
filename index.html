@@ -17,14 +17,15 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: radial-gradient(ellipse at top, #0f1d2b 0%, #05070b 70%);
+      background: radial-gradient(circle at top, #0f1d2b 0%, #05070b 70%);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #fff;
+      color: #ffffff;
+      overflow: hidden;
     }
 
     .container {
       display: flex;
-      gap: 56px;
+      gap: 24px; /* расстояние между иконками */
       align-items: center;
       justify-content: center;
     }
@@ -40,12 +41,12 @@
     }
 
     .app:hover {
-      transform: scale(1.04);
+      transform: scale(1.05);
     }
 
     .icon {
-      width: 90px;
-      height: 90px;
+      width: 88px;
+      height: 88px;
       object-fit: contain;
       pointer-events: none;
       margin-bottom: 10px;
@@ -54,8 +55,18 @@
     .label {
       font-size: 14px;
       font-weight: 400;
-      letter-spacing: 0.3px;
       opacity: 0.9;
+      letter-spacing: 0.3px;
+    }
+
+    /* убираем любые фокусы и курсоры */
+    .app:focus,
+    .app:focus-visible {
+      outline: none;
+    }
+
+    * {
+      caret-color: transparent;
     }
   </style>
 </head>
@@ -63,13 +74,15 @@
 <body>
   <div class="container">
 
+    <!-- VOCABULARY APP -->
     <a class="app" href="./voc/">
-      <img class="icon" src="./assets/voczen.png" alt="VocZen">
+      <img src="./assets/voczen.png" alt="VocZen" class="icon">
       <div class="label">VocZen</div>
     </a>
 
+    <!-- BUG REPORT APP -->
     <a class="app" href="./bug/">
-      <img class="icon" src="./assets/bug.png" alt="Bug Report">
+      <img src="./assets/bug.png" alt="Bug Report" class="icon">
       <div class="label">Bug Report</div>
     </a>
 
