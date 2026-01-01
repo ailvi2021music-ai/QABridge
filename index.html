@@ -3,42 +3,33 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>VIC Tools</title>
+  <title>VIC</title>
   <meta name="theme-color" content="#0b0b0c" />
   <style>
     :root { color-scheme: dark; }
     * { box-sizing: border-box; }
     body{
-      margin:0; min-height:100svh;
+      margin:0;
+      min-height:100svh;
       font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 20% 0%, rgba(60,220,255,.18), transparent 55%),
-                  radial-gradient(900px 600px at 85% 15%, rgba(140,120,255,.18), transparent 60%),
-                  #0b0b0c;
+      background:#0b0b0c; /* просто тёмный фон, без градиентов */
       color:#fff;
-      display:flex; align-items:center; justify-content:center;
-      padding:24px;
-    }
-    .wrap{ width:min(900px, 100%); text-align:center; }
-    .title{
-      font-size:18px; font-weight:800; letter-spacing:.2px;
-      margin:0 0 6px;
-    }
-    .sub{
-      margin:0 0 22px;
-      opacity:.75;
-      font-size:13px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
 
     .grid{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap:28px;
-      justify-items:center;
-      align-items:start;
-      margin-top:10px;
+      display:flex;
+      gap:56px;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
     }
-    @media (max-width:720px){
-      .grid{ grid-template-columns: 1fr; gap:22px; }
+
+    /* на телефоне — чуть меньше расстояние */
+    @media (max-width:520px){
+      .grid{ gap:34px; }
     }
 
     a.app{
@@ -47,79 +38,53 @@
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:12px;
-      padding:10px 12px;
-      border-radius:18px;
-      transition: transform .12s ease, background .12s ease;
-    }
-    a.app:hover{
-      transform: translateY(-2px);
-      background: rgba(255,255,255,.04);
+      gap:10px;
+      padding:8px;
+      border-radius:16px;
+      transition: transform .12s ease;
     }
 
-    .icon{
-      width:148px;
-      height:148px;
-      border-radius:28px;
-      overflow:hidden;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: 0 12px 30px rgba(0,0,0,.35);
-      display:flex; align-items:center; justify-content:center;
-    }
-    .icon img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
+    /* лёгкая анимация без свечений */
+    a.app:hover{ transform: translateY(-1px) scale(1.03); }
+    a.app:active{ transform: scale(0.99); }
+
+    /* ВОТ ТУТ размер иконок (в ~2 раза меньше, чем было) */
+    img.icon{
+      width:86px;
+      height:86px;
       display:block;
+      object-fit:contain;
+      border-radius:0;    /* ничего не округляем контейнером */
+      box-shadow:none;    /* убираем тени */
+      background:none;    /* убираем фон */
+      filter:none;        /* убираем эффекты */
     }
 
-    .name{
-      font-size:15px;
-      font-weight:800;
+    .label{
+      font-size:14px;
+      font-weight:600;
+      letter-spacing:.2px;
       margin:0;
-    }
-    .hint{
-      margin:0;
-      font-size:12px;
-      opacity:.7;
-      max-width:260px;
-      line-height:1.35;
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1 class="title">VIC Tools</h1>
-    <p class="sub">Выбери приложение</p>
+  <div class="grid">
+    <a class="app" href="./" id="voczenLink" aria-label="VocZen">
+      <img class="icon" src="./assets/voczen.png" alt="VocZen" />
+      <p class="label">VocZen</p>
+    </a>
 
-    <div class="grid">
-      <!-- VocZen -->
-      <a class="app" href="./" id="voczenLink">
-        <div class="icon">
-          <img src="./assets/voczen.png" alt="VocZen" />
-        </div>
-        <p class="name">VocZen</p>
-        <p class="hint">Тренировка слов и предложений (EN↔RU)</p>
-      </a>
-
-      <!-- Bug Report Trainer -->
-      <a class="app" href="./bug/" id="bugLink">
-        <div class="icon">
-          <img src="./assets/bug.png" alt="Bug Report Trainer" />
-        </div>
-        <p class="name">BugReport</p>
-        <p class="hint">Генератор баг-репортов EN + RU + словарь</p>
-      </a>
-    </div>
+    <a class="app" href="./bug/" aria-label="Bug Report">
+      <img class="icon" src="./assets/bug.png" alt="Bug Report" />
+      <p class="label">Bug Report</p>
+    </a>
   </div>
 
   <script>
-    // Если у тебя английское приложение НЕ в корне, а например /english/ —
-    // поменяй ссылку здесь:
+    // Если VocZen у тебя НЕ в корне ("/"), а в папке, например "/english/",
+    // просто раскомментируй и поменяй путь:
     // document.getElementById("voczenLink").href = "./english/";
-    //
-    // Сейчас по умолчанию стоит "./" (корень).
   </script>
 </body>
 </html>
