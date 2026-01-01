@@ -6,86 +6,140 @@
   <title>VIC Tools</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    :root { color-scheme: dark; }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
       background: radial-gradient(circle at top, #0f1d2b 0%, #05070b 70%);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #ffffff;
-      overflow: hidden;
+      font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:#fff;
+      overflow:hidden;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .container {
-      display: flex;
-      gap: 24px; /* расстояние между иконками */
-      align-items: center;
-      justify-content: center;
+    .container{
+      display:flex;
+      gap:24px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;              /* чтобы 5 иконок красиво переносились */
+      max-width: 720px;
+      padding: 28px;
     }
 
-    .app {
-      text-decoration: none;
-      color: #eaeaea;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      user-select: none;
+    .app{
+      text-decoration:none;
+      color:#eaeaea;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      user-select:none;
       transition: transform 0.15s ease;
+      outline:none;
+      cursor:pointer;
+      padding: 6px 8px;
+      border-radius: 12px;
     }
 
-    .app:hover {
-      transform: scale(1.05);
+    .app:hover{ transform: scale(1.05); }
+    .app:active{ transform: scale(0.99); }
+
+    .icon{
+      width:88px;
+      height:88px;
+      object-fit:contain;
+      pointer-events:none;
+      margin-bottom:10px;
+      display:block;
     }
 
-    .icon {
-      width: 88px;
-      height: 88px;
-      object-fit: contain;
+    .label{
+      font-size:14px;
+      font-weight:400;
+      opacity:0.9;
+      letter-spacing:0.3px;
+      pointer-events:none;
+      white-space: nowrap;
+    }
+
+    .app:focus, .app:focus-visible{ outline:none; }
+    * { caret-color: transparent; }
+
+    /* маленькое “скоро” */
+    .toast{
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      opacity: 0;
       pointer-events: none;
-      margin-bottom: 10px;
+      transition: opacity .18s ease;
     }
+    .toast.show{ opacity: 1; }
 
-    .label {
-      font-size: 14px;
-      font-weight: 400;
-      opacity: 0.9;
-      letter-spacing: 0.3px;
-    }
-
-    /* убираем любые фокусы и курсоры */
-    .app:focus,
-    .app:focus-visible {
-      outline: none;
-    }
-
-    * {
-      caret-color: transparent;
+    @media (max-width:520px){
+      .container{ gap:18px; max-width: 360px; }
+      .icon{ width:76px; height:76px; }
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-
-    <!-- VOCABULARY APP -->
+    <!-- уже работающие -->
     <a class="app" href="./voc/">
-      <img src="./assets/voczen.png" alt="VocZen" class="icon">
+      <img class="icon" src="./assets/voczen.png" alt="VocZen">
       <div class="label">VocZen</div>
     </a>
 
-    <!-- BUG REPORT APP -->
     <a class="app" href="./bug/">
-      <img src="./assets/bug.png" alt="Bug Report" class="icon">
+      <img class="icon" src="./assets/bug.png" alt="Bug Report">
       <div class="label">Bug Report</div>
     </a>
 
+    <!-- будущие (пока “скоро”) -->
+    <a class="app coming" href="#" data-soon="Test Cases">
+      <img class="icon" src="./assets/testcases.png" alt="Test Cases">
+      <div class="label">Test Cases</div>
+    </a>
+
+    <a class="app coming" href="#" data-soon="Resume">
+      <img class="icon" src="./assets/resume.png" alt="Resume">
+      <div class="label">Resume</div>
+    </a>
+
+    <a class="app coming" href="#" data-soon="Automation">
+      <img class="icon" src="./assets/automation.png" alt="Automation">
+      <div class="label">Automation</div>
+    </a>
   </div>
+
+  <div class="toast" id="toast">Скоро ✨</div>
+
+  <script>
+    const toast = document.getElementById("toast");
+    let tmr;
+
+    document.querySelectorAll(".coming").forEach(a => {
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        const name = a.getAttribute("data-soon") || "Скоро";
+        toast.textContent = name + " — скоро ✨";
+        toast.classList.add("show");
+        clearTimeout(tmr);
+        tmr = setTimeout(()=>toast.classList.remove("show"), 1200);
+      });
+    });
+  </script>
 </body>
 </html>
