@@ -17,25 +17,26 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: radial-gradient(circle at top, #0f1c2c 0%, #05070b 70%);
+      background: radial-gradient(ellipse at top, #0f1d2b 0%, #05070b 70%);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: #fff;
     }
 
     .container {
       display: flex;
-      gap: 60px; /* расстояние между иконками */
+      gap: 56px;
       align-items: center;
       justify-content: center;
     }
 
     .app {
+      text-decoration: none;
+      color: #eaeaea;
       display: flex;
       flex-direction: column;
       align-items: center;
-      text-decoration: none;
-      color: #eaeaea;
-      transition: transform 0.2s ease;
+      user-select: none;
+      transition: transform 0.15s ease;
     }
 
     .app:hover {
@@ -43,42 +44,35 @@
     }
 
     .icon {
-      width: 110px;
-      height: 110px;
+      width: 90px;
+      height: 90px;
       object-fit: contain;
+      pointer-events: none;
       margin-bottom: 10px;
     }
 
     .label {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 400;
-      opacity: 0.9;
       letter-spacing: 0.3px;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        gap: 40px;
-      }
-      .icon {
-        width: 90px;
-        height: 90px;
-      }
+      opacity: 0.9;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <a class="app" href="./">
-      <img class="icon" src="./assets/voczen.png" alt="VocZen" />
+
+    <a class="app" href="./voc/">
+      <img class="icon" src="./assets/voczen.png" alt="VocZen">
       <div class="label">VocZen</div>
     </a>
 
     <a class="app" href="./bug/">
-      <img class="icon" src="./assets/bug.png" alt="Bug Report" />
+      <img class="icon" src="./assets/bug.png" alt="Bug Report">
       <div class="label">Bug Report</div>
     </a>
+
   </div>
 </body>
 </html>
