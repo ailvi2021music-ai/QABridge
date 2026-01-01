@@ -4,144 +4,122 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>VIC Tools</title>
-  <meta name="theme-color" content="#071221" />
+  <meta name="theme-color" content="#0b0b0c" />
   <style>
-    :root{
-      --bg0:#050914;
-      --bg1:#071221;
-      --text:#EAF2FF;
-      --muted:rgba(234,242,255,.65);
-      --accent:#59C3FF;
-      --shadow: 0 18px 60px rgba(0,0,0,.55);
-      --r:18px;
-    }
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
     body{
-      margin:0;
-      font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--text);
-      background: linear-gradient(180deg, var(--bg0), var(--bg1));
-      -webkit-font-smoothing:antialiased;
-      -webkit-text-size-adjust:100%;
-      overflow-x:hidden;
+      margin:0; min-height:100svh;
+      font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 20% 0%, rgba(60,220,255,.18), transparent 55%),
+                  radial-gradient(900px 600px at 85% 15%, rgba(140,120,255,.18), transparent 60%),
+                  #0b0b0c;
+      color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      padding:24px;
     }
-    body::before{
-      content:"";
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      background:
-        radial-gradient(1200px 800px at 20% 10%, rgba(89,195,255,.20), transparent 60%),
-        radial-gradient(900px 700px at 80% 30%, rgba(75,227,209,.14), transparent 55%),
-        radial-gradient(900px 700px at 60% 90%, rgba(255,92,122,.10), transparent 60%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-    }
-    .wrap{
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 24px 14px 40px;
-      min-height: 100svh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .grid{
-      width:100%;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:14px;
-    }
-    @media (max-width:720px){ .grid{ grid-template-columns: 1fr; } }
-
-    .card{
-      border-radius: var(--r);
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(234,242,255,.06);
-      backdrop-filter: blur(14px) saturate(140%);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
-      box-shadow: var(--shadow);
-      padding: 16px;
-    }
+    .wrap{ width:min(900px, 100%); text-align:center; }
     .title{
-      font-size: 18px;
-      font-weight: 700;
-      margin: 2px 0 6px;
-      letter-spacing: .2px;
+      font-size:18px; font-weight:800; letter-spacing:.2px;
+      margin:0 0 6px;
     }
-    .desc{
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.45;
-      margin: 0 0 12px;
+    .sub{
+      margin:0 0 22px;
+      opacity:.75;
+      font-size:13px;
     }
-    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; }
-    a.btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(89,195,255,.25);
-      background: rgba(89,195,255,.10);
-      color: rgba(234,242,255,.92);
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:28px;
+      justify-items:center;
+      align-items:start;
+      margin-top:10px;
+    }
+    @media (max-width:720px){
+      .grid{ grid-template-columns: 1fr; gap:22px; }
+    }
+
+    a.app{
       text-decoration:none;
-      font-size: 13px;
-      user-select:none;
-      cursor:pointer;
-      transition: transform .08s ease, filter .12s ease;
+      color:inherit;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+      padding:10px 12px;
+      border-radius:18px;
+      transition: transform .12s ease, background .12s ease;
     }
-    a.btn:hover{ filter: brightness(1.06); }
-    a.btn:active{ transform: translateY(1px); }
-    a.btn.ghost{
-      background: transparent;
-      border-color: rgba(234,242,255,.12);
-      color: rgba(234,242,255,.80);
+    a.app:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.04);
     }
-    .pill{
-      display:inline-flex;
-      padding: 6px 10px;
-      border-radius: 999px;
+
+    .icon{
+      width:148px;
+      height:148px;
+      border-radius:28px;
+      overflow:hidden;
       background: rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.10);
-      color: rgba(234,242,255,.80);
-      font-size: 12px;
-      margin-bottom: 10px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .icon img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .name{
+      font-size:15px;
+      font-weight:800;
+      margin:0;
+    }
+    .hint{
+      margin:0;
+      font-size:12px;
+      opacity:.7;
+      max-width:260px;
+      line-height:1.35;
     }
   </style>
 </head>
 <body>
   <div class="wrap">
+    <h1 class="title">VIC Tools</h1>
+    <p class="sub">Выбери приложение</p>
+
     <div class="grid">
-
-      <div class="card">
-        <div class="pill">QA</div>
-        <div class="title">Bug Report Trainer</div>
-        <p class="desc">
-          Заполняешь факты → жмёшь «Сгенерировать» → получаешь умный баг-репорт EN + RU + словарь.
-          Генерация идёт через твой Cloudflare Worker → OpenAI.
-        </p>
-        <div class="btnRow">
-          <a class="btn" href="./bug/">Открыть</a>
-          <a class="btn ghost" href="./bug/" title="Открыть в той же вкладке">/bug/</a>
+      <!-- VocZen -->
+      <a class="app" href="./" id="voczenLink">
+        <div class="icon">
+          <img src="./assets/voczen.png" alt="VocZen" />
         </div>
-      </div>
+        <p class="name">VocZen</p>
+        <p class="hint">Тренировка слов и предложений (EN↔RU)</p>
+      </a>
 
-      <div class="card">
-        <div class="pill">English</div>
-        <div class="title">VocZen</div>
-        <p class="desc">
-          Тренировка слов и предложений (режимы + направление EN↔RU).
-          Работает как PWA и оффлайн через Service Worker.
-        </p>
-        <div class="btnRow">
-          <a class="btn" href="./voc/">Открыть</a>
-          <a class="btn ghost" href="./voc/edit.html">Редактор</a>
+      <!-- Bug Report Trainer -->
+      <a class="app" href="./bug/" id="bugLink">
+        <div class="icon">
+          <img src="./assets/bug.png" alt="Bug Report Trainer" />
         </div>
-      </div>
-
+        <p class="name">BugReport</p>
+        <p class="hint">Генератор баг-репортов EN + RU + словарь</p>
+      </a>
     </div>
   </div>
+
+  <script>
+    // Если у тебя английское приложение НЕ в корне, а например /english/ —
+    // поменяй ссылку здесь:
+    // document.getElementById("voczenLink").href = "./english/";
+    //
+    // Сейчас по умолчанию стоит "./" (корень).
+  </script>
 </body>
 </html>
