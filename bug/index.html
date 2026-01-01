@@ -481,6 +481,7 @@
             <pre id="outVNew">—</pre>
             <div class="btnRow" style="margin-top:10px;">
               <button class="btn primary" id="copyNew" type="button" title="Скопировать новые" aria-label="Скопировать новые">Copy new</button>
+              <button class="btn" id="sendNewToVocZen" type="button" title="Отправить в VocZen" aria-label="Отправить в VocZen">В VocZen</button>
             </div>
           </div>
 
@@ -493,6 +494,7 @@
 
             <div class="btnRow" style="margin-top:10px;">
               <button class="btn primary" id="copyAll" type="button" title="Скопировать все" aria-label="Скопировать все">Copy all</button>
+              <button class="btn" id="sendAllToVocZen" type="button" title="Отправить в VocZen" aria-label="Отправить в VocZen">В VocZen</button>
               <button class="btn" id="newReport4" type="button" title="Новый отчёт" aria-label="Новый отчёт">Новый отчёт</button>
               <button class="btn danger" id="resetVocab3" type="button" title="Сбросить словарь" aria-label="Сбросить словарь">Сбросить словарь</button>
             </div>
@@ -643,6 +645,87 @@
   }
 
   const LS_ALL = "bugTrainer_allVocab_ai_v1";
+
+  // ========= VocZen bridge (Резерв) =========
+  // ВАЖНО: работает только если bug/ и voc/ открыты с одного домена (один origin).
+  const VZ_WORDS_VAULT_KEY = "vz_words_vault_v1";
+
+  function loadJSON(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      if(!raw) return fallback;
+      const v = JSON.parse(raw);
+      return (v === null || v === undefined) ? fallback : v;
+    }catch{
+      return fallback;
+    }
+  }
+
+  function saveJSON(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function pairKey(p){
+    const a = (p && p.a ? String(p.a) : "").trim().toLowerCase();
+    const b = (p && p.b ? String(p.b) : "").trim().toLowerCase();
+    if(!a || !b) return "";
+    return a + "||" + b;
+  }
+
+  function dedupePairs(pairs){
+    const seen = new Set();
+    const out = [];
+    for(const p of (pairs || [])){
+      const k = pairKey(p);
+      if(!k) continue;
+      if(seen.has(k)) continue;
+      seen.add(k);
+      out.push({ a: String(p.a).trim(), b: String(p.b).trim() });
+    }
+    return out;
+  }
+
+  function parseLineToPair(line){
+    const s = String(line || "").trim();
+    if(!s) return null;
+
+    // поддержим разные разделители: "—" / "-" / "–"
+    const parts = s.split(/\s*(?:—|–|-)\s*/);
+    if(parts.length < 2) return null;
+
+    const a = parts[0].trim();
+    const b = parts.slice(1).join(" - ").trim(); // если вдруг в переводе тоже был дефис
+    if(!a || !b) return null;
+    return { a, b };
+  }
+
+  function addPairsToVocZenVault(pairs){
+    const incoming = dedupePairs(pairs);
+    if(!incoming.length){
+      toast("Нечего отправлять");
+      return { added: 0, total: null };
+    }
+
+    const existing = loadJSON(VZ_WORDS_VAULT_KEY, []);
+    const existingArr = Array.isArray(existing) ? existing : [];
+
+    const seen = new Set(existingArr.map(pairKey).filter(Boolean));
+    let added = 0;
+
+    for(const p of incoming){
+      const k = pairKey(p);
+      if(!k) continue;
+      if(seen.has(k)) continue;
+      seen.add(k);
+      existingArr.push(p);
+      added += 1;
+    }
+
+    saveJSON(VZ_WORDS_VAULT_KEY, existingArr);
+    toast(added ? `В VocZen: +${added}` : "В VocZen: дублей нет смысла");
+    return { added, total: existingArr.length };
+  }
+
   function loadAllVocab(){
     try{
       const raw = localStorage.getItem(LS_ALL);
@@ -823,10 +906,12 @@
     $("vocNewCountPill").textContent = String(newLines.length);
     $("outVNew").textContent = newLines.length ? newLines.join("\n") : "—";
     $("copyNew").disabled = !newLines.length;
+    $("sendNewToVocZen").disabled = !newLines.length;
 
     $("vocAllCountPill").textContent = String(allArr.length);
     $("outVAll").textContent = allArr.length ? allArr.join("\n") : "—";
     $("copyAll").disabled = !allArr.length;
+    $("sendAllToVocZen").disabled = !allArr.length;
   }
 
   function newReport(){
@@ -889,6 +974,22 @@
   $("copyAll").addEventListener("click", ()=>{
     const allText = loadAllVocab().join("\n");
     copyText(allText);
+  });
+
+  // ========= send to VocZen buttons =========
+  $("sendNewToVocZen").addEventListener("click", ()=>{
+    const pairs = (state.lastNewVocab || [])
+      .filter(x => x && x.en && x.ru)
+      .map(x => ({ a: String(x.en).trim(), b: String(x.ru).trim() }));
+    addPairsToVocZenVault(pairs);
+  });
+
+  $("sendAllToVocZen").addEventListener("click", ()=>{
+    const allLines = loadAllVocab();
+    const pairs = allLines
+      .map(parseLineToPair)
+      .filter(Boolean);
+    addPairsToVocZenVault(pairs);
   });
 
   function getWizardSteps(){
