@@ -323,46 +323,10 @@
     .wizardShell{ display:flex; flex-direction:column; gap:8px; }
     #wizardMode .q{ margin-bottom: 8px; }
     #wizardMode .btnRow{ margin-top: 6px; }
-
-    /* ===== HOME BUTTON (иконка домой) ===== */
-    .homeBtn{
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      z-index: 120;
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-
-      background: rgba(10,20,43,.55);
-      border: 1px solid rgba(234,242,255,.14);
-      color: rgba(234,242,255,.95);
-      cursor: pointer;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-
-      box-shadow: 0 12px 28px rgba(0,0,0,.35);
-      backdrop-filter: blur(10px) saturate(140%);
-      -webkit-backdrop-filter: blur(10px) saturate(140%);
-
-      font-size: 18px;
-      line-height: 1;
-      transition: transform .08s ease, filter .12s ease, background .12s ease, border-color .12s ease;
-    }
-    .homeBtn:hover{ filter: brightness(1.06); }
-    .homeBtn:active{ transform: translateY(1px); }
-    .homeBtn:focus{ outline: none; }
-    .homeBtn:focus-visible{ outline: 2px solid rgba(89,195,255,.35); outline-offset: 2px; }
   </style>
 </head>
 
 <body>
-  <!-- ИКОНКА “ДОМОЙ” (ТОЛЬКО ИКОНКА, БЕЗ ТЕКСТА) -->
-  <button class="homeBtn" id="homeBtn" type="button" title="Главная" aria-label="Главная">🏠</button>
-
   <div class="wrap">
     <section class="card" id="mainCard">
       <div class="cardHead hidden" id="cardHead">
@@ -430,6 +394,10 @@
               </div>
 
               <div class="btnGroup right">
+                <!-- ДОБАВИЛ: иконка “главная” рядом с глазом, того же класса/размера -->
+                <button class="iconBtn" id="homeBtn" type="button"
+                  title="Главная" aria-label="Главная">🏠</button>
+
                 <button class="iconBtn" id="reportModeBtn" type="button"
                   title="Режим репорта: увидено / действовал(а)" aria-label="Режим репорта: увидено / действовал(а)">👁️</button>
 
@@ -458,6 +426,10 @@
                 </div>
 
                 <div class="btnGroup right">
+                  <!-- ДОБАВИЛ: иконка “главная” и здесь, рядом с глазом -->
+                  <button class="iconBtn" id="homeBtn2" type="button"
+                    title="Главная" aria-label="Главная">🏠</button>
+
                   <button class="iconBtn" id="reportModeBtn2" type="button"
                     title="Режим репорта: увидено / действовал(а)" aria-label="Режим репорта: увидено / действовал(а)">👁️</button>
 
@@ -536,17 +508,18 @@
   <div class="toast" id="toast">OK</div>
 
 <script>
+(() => {
   // ========= CONFIG =========
   const AI_ENDPOINT = "https://bold-dream-f448.kuzsam15.workers.dev";
   const APP_TOKEN = "";
 
+  // ========= HOME =========
+  // сюда укажи реальный путь до страницы-меню (где список приложений)
+  // примеры: "../index.html" или "/index.html" или "./index.html"
+  const HOME_URL = "./index.html";
+
   // ========= VocZen storage key (СЛОВА → РЕЗЕРВ) =========
   const VZ_WORDS_VAULT_KEY = "vz_words_vault_v1";
-
-  // ========= HOME =========
-  // ВСТАВЬ СЮДА путь к твоей главной странице (где список всех приложений)
-  // пример: "../index.html" или "/index.html" или "./index.html"
-  const HOME_URL = "./index.html";
 
   // ========= utils =========
   const $ = (id) => document.getElementById(id);
@@ -629,6 +602,17 @@
     if(state.tab === "vocab") setTab("result");
     else setTab("input");
   });
+
+  // ===== HOME click =====
+  function goHome(){
+    if(HOME_URL){
+      window.location.href = HOME_URL;
+      return;
+    }
+    if(window.history.length > 1) window.history.back();
+  }
+  $("homeBtn").addEventListener("click", goHome);
+  $("homeBtn2").addEventListener("click", goHome);
 
   function setInputMode(mode){
     state.inputMode = mode;
@@ -952,17 +936,7 @@
     toast("Очищено");
   });
 
-  // ===== HOME BTN HANDLER =====
-  $("homeBtn").addEventListener("click", ()=>{
-    // если HOME_URL не поменяли — всё равно попробуем history.back()
-    if(HOME_URL && HOME_URL !== "./index.html") {
-      window.location.href = HOME_URL;
-      return;
-    }
-    // fallback: назад, если это "страница внутри"
-    if(window.history.length > 1) window.history.back();
-    else window.location.href = HOME_URL;
-  });
+  $("goVocab").addEventListener("click", ()=>setTab("vocab"));
 
   function getWizardSteps(){
     if(state.reportMode === "observe"){
@@ -1070,6 +1044,7 @@
   setInputMode("form");
   $("sevPill").textContent = "—";
   $("envPill").textContent = "Env: —";
+})();
 </script>
 </body>
 </html>
