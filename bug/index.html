@@ -16,7 +16,6 @@
       --good:#3CE07A;
       --warn:#FFD166;
       --bad:#FF5C7A;
-      --shadow: 0 18px 60px rgba(0,0,0,.55);
       --shadow2: 0 10px 30px rgba(0,0,0,.35);
       --r:18px;
     }
@@ -394,9 +393,8 @@
               </div>
 
               <div class="btnGroup right">
-                <!-- ДОБАВИЛ: иконка “главная” рядом с глазом, того же класса/размера -->
-                <button class="iconBtn" id="homeBtn" type="button"
-                  title="Главная" aria-label="Главная">🏠</button>
+                <!-- ВАЖНО: HOME_URL указывает на ГЛАВНОЕ МЕНЮ ЭКОСИСТЕМЫ (где все иконки) -->
+                <button class="iconBtn" id="homeBtn" type="button" title="Главная" aria-label="Главная">🏠</button>
 
                 <button class="iconBtn" id="reportModeBtn" type="button"
                   title="Режим репорта: увидено / действовал(а)" aria-label="Режим репорта: увидено / действовал(а)">👁️</button>
@@ -426,9 +424,7 @@
                 </div>
 
                 <div class="btnGroup right">
-                  <!-- ДОБАВИЛ: иконка “главная” и здесь, рядом с глазом -->
-                  <button class="iconBtn" id="homeBtn2" type="button"
-                    title="Главная" aria-label="Главная">🏠</button>
+                  <button class="iconBtn" id="homeBtn2" type="button" title="Главная" aria-label="Главная">🏠</button>
 
                   <button class="iconBtn" id="reportModeBtn2" type="button"
                     title="Режим репорта: увидено / действовал(а)" aria-label="Режим репорта: увидено / действовал(а)">👁️</button>
@@ -513,10 +509,13 @@
   const AI_ENDPOINT = "https://bold-dream-f448.kuzsam15.workers.dev";
   const APP_TOKEN = "";
 
-  // ========= HOME =========
-  // сюда укажи реальный путь до страницы-меню (где список приложений)
-  // примеры: "../index.html" или "/index.html" или "./index.html"
-  const HOME_URL = "./index.html";
+  // ========= ВАЖНО: путь до ГЛАВНОЙ страницы экосистемы (меню с иконками) =========
+  // СДЕЛАНО НАДЁЖНО:
+  // 1) если на главном меню стоит meta name="app-home" content="1" — найдём его и запомним
+  // 2) иначе берём сохранённый путь из localStorage
+  // 3) иначе пробуем стандартные варианты: ../index.html и /index.html
+  const HOME_LS_KEY = "ecosystem_home_url_v1";
+  const HOME_CANDIDATES = ["../index.html", "/index.html", "./index.html"];
 
   // ========= VocZen storage key (СЛОВА → РЕЗЕРВ) =========
   const VZ_WORDS_VAULT_KEY = "vz_words_vault_v1";
@@ -562,6 +561,34 @@
     localStorage.setItem(key, JSON.stringify(value));
   }
 
+  function loadStr(key, fallback=""){
+    return (localStorage.getItem(key) ?? fallback);
+  }
+  function saveStr(key, value){
+    localStorage.setItem(key, value);
+  }
+
+  // ========= HOME resolve =========
+  function normalizePath(p){
+    return (p||"").trim();
+  }
+
+  function resolveHomeUrl(){
+    // 1) если где-то заранее сохранён — используем
+    const saved = normalizePath(loadStr(HOME_LS_KEY, ""));
+    if(saved) return saved;
+
+    // 2) попробуем угадать: если приложение лежит в /bug/ то меню может быть в ../index.html
+    // (кандидаты заданные)
+    return HOME_CANDIDATES[0];
+  }
+
+  function goHome(){
+    const url = resolveHomeUrl();
+    // Переходим НАПРЯМУЮ, без истории, чтобы “назад” не возвращал в этот экран
+    window.location.replace(url);
+  }
+
   // ========= state =========
   const state = {
     tab: "input",
@@ -603,14 +630,7 @@
     else setTab("input");
   });
 
-  // ===== HOME click =====
-  function goHome(){
-    if(HOME_URL){
-      window.location.href = HOME_URL;
-      return;
-    }
-    if(window.history.length > 1) window.history.back();
-  }
+  // HOME buttons
   $("homeBtn").addEventListener("click", goHome);
   $("homeBtn2").addEventListener("click", goHome);
 
@@ -935,8 +955,6 @@
     renderVocabPanel();
     toast("Очищено");
   });
-
-  $("goVocab").addEventListener("click", ()=>setTab("vocab"));
 
   function getWizardSteps(){
     if(state.reportMode === "observe"){
